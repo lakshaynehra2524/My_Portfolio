@@ -340,10 +340,44 @@
   .li-top{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
   .li-top h4{ font-family:'Playfair Display', serif; font-size:14.5px; font-weight:600; line-height:1.25; }
   .li-date{ font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--muted); white-space:nowrap; }
-  .li-snippet{ color:var(--ink-soft); font-size:12.5px; line-height:1.4; display:-webkit-box; -webkit-box-orient:vertical ; line-clamp:2 ; -webkit-line-clamp: 2 ; overflow:hidden; }
+  .li-snippet{ color:var(--ink-soft); font-size:12.5px; line-height:1.4; display:-webkit-box; ; line-clamp: 2 ;-webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .li-link{ font-family:'JetBrains Mono', monospace; font-size:10.5px; color:var(--detect); margin-top:auto; }
   .li-empty{ font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--muted); }
   .li-count{ font-size:11px; color:var(--muted); margin-left:auto; }
+
+  /* ---------- github repos ---------- */
+  .gh-grid{ display:grid; grid-template-columns:1fr; gap:20px; }
+  @media(min-width:860px){ .gh-grid{ grid-template-columns:1fr 1fr; } }
+  .gh-card{
+    border:1px solid var(--line); padding:26px 26px 24px;
+    display:flex; flex-direction:column; gap:14px;
+    background:var(--paper-2);
+    transition:transform 0.25s ease, border-color 0.25s ease;
+  }
+  .gh-card:hover{ transform:translateY(-3px); border-color:var(--calm); }
+  .gh-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .gh-top h4{ font-family:'Playfair Display', serif; font-size:19px; font-weight:600; }
+  .gh-status{
+    font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.05em;
+    padding:4px 9px; border:1px solid; white-space:nowrap; text-transform:uppercase;
+  }
+  .gh-status.active{ color:var(--detect); border-color:var(--detect); }
+  .gh-status.active::before{ content:'● '; animation:pulse-dot 1.6s ease-in-out infinite; }
+  .gh-status.paused{ color:var(--gold); border-color:var(--gold); }
+  .gh-status.completed{ color:var(--calm); border-color:var(--calm); }
+  @keyframes pulse-dot{ 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+  .gh-desc{ color:var(--ink-soft); font-size:14.5px; line-height:1.6; }
+  .gh-progress-wrap{ display:none; flex-direction:column; gap:6px; }
+  .gh-card[data-status="active"] .gh-progress-wrap{ display:flex; }
+  .gh-progress-label{ display:flex; justify-content:space-between; font-family:'JetBrains Mono', monospace; font-size:10.5px; color:var(--muted); }
+  .gh-progress-track{ height:5px; background:var(--paper); border:1px solid var(--line); overflow:hidden; }
+  .gh-progress-fill{ height:100%; background:linear-gradient(90deg, var(--calm), var(--detect)); transition:width 0.6s ease; }
+  .gh-tags{ display:flex; flex-wrap:wrap; gap:7px; }
+  .gh-tags span{ font-family:'JetBrains Mono', monospace; font-size:10.5px; color:var(--ink-soft); border:1px solid var(--line); padding:3px 8px; }
+  .gh-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:4px; }
+  .gh-updated{ font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--muted); }
+  .gh-link{ font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--detect); }
+  .gh-empty{ font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--muted); }
 
   /* ---------- projects ---------- */
   .proj-grid{ display:grid; grid-template-columns:1fr; gap:24px; }
@@ -434,6 +468,7 @@
       <a href="#skills">skills</a>
       <a href="#experience">experience</a>
       <a href="#linkedin">linkedin</a>
+      <a href="#github">github</a>
       <a href="#projects">projects</a>
       <a href="#education">education</a>
     </div>
@@ -594,9 +629,18 @@
     <div id="li-posts" class="li-scroll reveal"></div>
   </section>
 
+  <!-- GITHUB -->
+  <section id="github">
+    <div class="sec-head reveal">
+      <span class="idx mono">// 05</span><h2>GitHub</h2><span class="rule"></span>
+      <a class="li-cta mono" href="https://github.com/lakshaynehra2524" target="_blank" rel="noopener">view profile ↗</a>
+    </div>
+    <div id="gh-repos" class="gh-grid reveal"></div>
+  </section>
+
   <!-- PROJECTS -->
   <section id="projects">
-    <div class="sec-head reveal"><span class="idx mono">// 05</span><h2>Projects</h2><span class="rule"></span></div>
+    <div class="sec-head reveal"><span class="idx mono">// 06</span><h2>Projects</h2><span class="rule"></span></div>
     <div class="proj-grid">
 
       <div class="proj-card full reveal">
@@ -655,7 +699,7 @@
 
   <!-- EDUCATION -->
   <section id="education">
-    <div class="sec-head reveal"><span class="idx mono">// 06</span><h2>Education</h2><span class="rule"></span></div>
+    <div class="sec-head reveal"><span class="idx mono">// 07</span><h2>Education</h2><span class="rule"></span></div>
     <div class="edu-card reveal bracket always">
       <span class="bl"></span><span class="br"></span>
       <div>
@@ -669,7 +713,7 @@
 
   <!-- CONTACT -->
   <section id="contact">
-    <div class="sec-head reveal"><span class="idx mono">// 07</span><h2>Contact</h2><span class="rule"></span></div>
+    <div class="sec-head reveal"><span class="idx mono">// 08</span><h2>Contact</h2><span class="rule"></span></div>
     <div class="contact-inner reveal">
       <div class="contact-big">Let's build something worth deploying.</div>
       <div class="contact-links">
@@ -745,8 +789,37 @@
     document.getElementById('li-posts').innerHTML = '<div class="li-empty mono">// couldn\'t load posts right now</div>';
   });
 
+  // ---------- github repos ----------
+  fetch('/api/repos').then(r => r.json()).then(repos => {
+    const wrap = document.getElementById('gh-repos');
+    if(!repos || !repos.length){
+      wrap.innerHTML = '<div class="gh-empty mono">// no repos yet — add one from /admin</div>';
+      return;
+    }
+    wrap.innerHTML = repos.map(r => `
+      <div class="gh-card" data-status="${r.status}">
+        <div class="gh-top">
+          <h4>${r.name}</h4>
+          <span class="gh-status ${r.status}">${r.status}</span>
+        </div>
+        <p class="gh-desc">${r.description || ''}</p>
+        <div class="gh-progress-wrap">
+          <div class="gh-progress-label"><span>progress</span><span>${r.progress || 0}%</span></div>
+          <div class="gh-progress-track"><div class="gh-progress-fill" style="width:${r.progress || 0}%"></div></div>
+        </div>
+        <div class="gh-tags">${(r.tags || []).map(t => `<span>${t}</span>`).join('')}</div>
+        <div class="gh-foot">
+          <span class="gh-updated mono">updated ${r.updated || '—'}</span>
+          <a class="gh-link mono" href="${r.url}" target="_blank" rel="noopener">view repo →</a>
+        </div>
+      </div>
+    `).join('');
+  }).catch(() => {
+    document.getElementById('gh-repos').innerHTML = '<div class="gh-empty mono">// couldn\'t load repos right now</div>';
+  });
+
   // ---------- drag-reactive liquid rainbow fluid background ----------
-(function(){
+  (function(){
   const canvas = document.getElementById('bg-canvas');
   const ctx = canvas.getContext('2d');
   let w, h, dpr;

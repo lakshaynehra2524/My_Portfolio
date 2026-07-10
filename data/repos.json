@@ -1,0 +1,88 @@
+[
+  {
+    "name": "Learning-FastAPI",
+    "url": "https://github.com/lakshaynehra2524/Learning-FastApi",
+    "description": "A hands-on FastAPI learning repository documenting my end-to-end journey through FastAPI. This repo focuses on practical coding, workflows, APIs, features, and real implementations rather than theory. Each tutorial/branch records concepts I learn, build, and experiment with as I progress.",
+    "status": "active",
+    "progress": 70,
+    "tags": [
+      "FastAPI Project Setup",
+      "Routing",
+      "Query Parameters",
+      "Path Parameters",
+      "Request Body",
+      "Data Validation",
+      "Pydantic Models",
+      "CRUD Operations",
+      "Response Models",
+      "Hiding Sensitive Data",
+      "Status Codes",
+      "Custom Responses",
+      "Exception Handling",
+      "Dependency Injection",
+      "Middleware",
+      "SQLAlchemy ORM",
+      "Database CRUD Operations",
+      "Async Programming",
+      "Authentication",
+      "JWT",
+      "OAuth2",
+      "Password Hashing",
+      "File Uploads",
+      "Static File Serving",
+      "CORS Configuration",
+      "Environment Variables",
+      "Configuration Management",
+      "API Testing",
+      "Third-Party API Integration",
+      "Web Crawling",
+      "Pagination",
+      "API Caching",
+      "API Rate Limiting",
+      "Deploying FastAPI Applications",
+      "Render",
+      "Building a Real-World Blog API"
+    ],
+    "updated": "2026-07"
+  },
+  {
+    "name": "DepthVision",
+    "url": "https://github.com/lakshaynehra2524/depthvision",
+    "description": "FastAPI service combining monocular depth estimation with YOLOv8 object detection to compute real-world object distances and flag high-risk object pairs in a scene, with annotated visual output. Currently extending the risk-scoring model to handle occluded objects.",
+    "status": "active",
+    "progress": 75,
+    "tags": [
+      "FastAPI",
+      "YOLOv8",
+      "OpenCV",
+      "Depth Estimation"
+    ],
+    "updated": "2026-07"
+  },
+  {
+    "name": "housing-price-prediction",
+    "url": "https://github.com/lakshaynehra2524/housing-price-prediction",
+    "description": "Regression pipeline comparing Ridge, Lasso, and ensemble models for housing price prediction, deployed with an RMSE-optimized Ridge model. Includes a TF-IDF based chatbot for automated Q&A over a custom real-estate corpus.",
+    "status": "completed",
+    "progress": 100,
+    "tags": [
+      "Scikit-learn",
+      "Ridge Regression",
+      "TF-IDF"
+    ],
+    "updated": "2025-12"
+  },
+  {
+    "name": "ai-intent-calling-assistant",
+    "url": "https://github.com/lakshaynehra2524/ai-intent-calling-assistant",
+    "description": "Streamlit application for real-time intent recognition from user voice/text commands using TF-IDF features and a LinearSVC classifier. Paused while exploring a transformer-based intent classifier as a v2.",
+    "status": "paused",
+    "progress": 40,
+    "tags": [
+      "NLP",
+      "LinearSVC",
+      "Streamlit"
+    ],
+    "updated": "2026-04"
+  }
+]

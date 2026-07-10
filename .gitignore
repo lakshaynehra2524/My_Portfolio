@@ -26,7 +26,6 @@ env/
 ENV/
 .venv/
 .env/
-portfoliovenv/
 
 # ---------- Environment variables / secrets ----------
 .env
@@ -63,5 +62,5 @@ htmlcov/
 .render/
 .railway/
 
-# My admit key 
+# My secret admin key
 admin_key/

@@ -25,6 +25,7 @@ STATIC_DIR = BASE_DIR / "static"
 UPLOADS_DIR = STATIC_DIR / "uploads"
 POSTS_FILE = DATA_DIR / "posts.json"
 PROFILE_FILE = DATA_DIR / "profile.json"
+REPOS_FILE = DATA_DIR / "repos.json"
 
 DATA_DIR.mkdir(exist_ok=True)
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
@@ -48,6 +49,16 @@ class Post(BaseModel):
     url: str
     date: str
     snippet: str = ""
+
+
+class Repo(BaseModel):
+    name: str
+    url: str
+    description: str = ""
+    status: str = "active"     # "active" | "paused" | "completed"
+    progress: int = 0          # 0-100, shown as a bar when status == "active"
+    tags: list[str] = []
+    updated: str = ""
 
 
 def _load_json(path: Path, default):
@@ -91,6 +102,44 @@ def delete_post(index: int, x_admin_key: Optional[str] = Header(None)):
         raise HTTPException(status_code=404, detail="Post not found")
     removed = posts.pop(index)
     _save_json(POSTS_FILE, posts)
+    return {"status": "ok", "removed": removed}
+
+
+# ---------- github repos ----------
+
+@app.get("/api/repos")
+def get_repos():
+    return _load_json(REPOS_FILE, [])
+
+
+@app.post("/api/repos")
+def add_repo(repo: Repo, x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    repos = _load_json(REPOS_FILE, [])
+    repos.insert(0, repo.dict())
+    _save_json(REPOS_FILE, repos)
+    return {"status": "ok", "count": len(repos)}
+
+
+@app.put("/api/repos/{index}")
+def update_repo(index: int, repo: Repo, x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    repos = _load_json(REPOS_FILE, [])
+    if index < 0 or index >= len(repos):
+        raise HTTPException(status_code=404, detail="Repo not found")
+    repos[index] = repo.dict()
+    _save_json(REPOS_FILE, repos)
+    return {"status": "ok", "updated": repos[index]}
+
+
+@app.delete("/api/repos/{index}")
+def delete_repo(index: int, x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    repos = _load_json(REPOS_FILE, [])
+    if index < 0 or index >= len(repos):
+        raise HTTPException(status_code=404, detail="Repo not found")
+    removed = repos.pop(index)
+    _save_json(REPOS_FILE, repos)
     return {"status": "ok", "removed": removed}
 
 

@@ -4,37 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portfolio Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root{ --paper:#F6F5F1; --ink:#14171A; --line:#D9D6CC; --detect:#FF5A36; --calm:#2F6F5E; }
+  :root{ --paper:#130A0C; --paper-2:#1E1113; --ink:#F4E8E8; --line:#3A2226; --detect:#FF3B5C; --calm:#B3384A; --gold:#D9A441; --muted:#8C7175; }
   *{box-sizing:border-box;}
-  body{ background:var(--paper); color:var(--ink); font-family:'JetBrains Mono', monospace; max-width:620px; margin:60px auto; padding:0 20px; }
-  h1{ font-family:'Space Grotesk', sans-serif; font-size:28px; margin-bottom:6px; }
-  p.sub{ color:#6b6b63; font-size:13px; margin-bottom:36px; }
+  body{ background:var(--paper); color:var(--ink); font-family:'JetBrains Mono', monospace; max-width:680px; margin:60px auto; padding:0 20px 80px; }
+  h1{ font-family:'Playfair Display', serif; font-size:30px; margin-bottom:6px; }
+  p.sub{ color:var(--muted); font-size:13px; margin-bottom:36px; }
   fieldset{ border:1px solid var(--line); padding:22px; margin-bottom:28px; }
   legend{ font-size:12px; padding:0 8px; color:var(--detect); }
-  label{ display:block; font-size:11.5px; color:#6b6b63; margin:14px 0 6px; }
-  input, textarea{ width:100%; font-family:inherit; font-size:13.5px; padding:10px; border:1px solid var(--line); background:#fff; color:var(--ink); }
-  textarea{ resize:vertical; min-height:60px; }
+  label{ display:block; font-size:11.5px; color:var(--muted); margin:14px 0 6px; }
+  input, textarea, select{ width:100%; font-family:inherit; font-size:13.5px; padding:10px; border:1px solid var(--line); background:var(--paper-2); color:var(--ink); }
+  textarea{ resize:vertical; min-height:70px; }
   button{ margin-top:16px; font-family:inherit; font-size:13px; background:var(--ink); color:var(--paper); border:none; padding:11px 20px; cursor:pointer; }
-  button:hover{ background:var(--detect); }
+  button:hover{ background:var(--detect); color:var(--ink); }
   .msg{ font-size:12.5px; margin-top:12px; }
   .msg.ok{ color:var(--calm); }
   .msg.err{ color:var(--detect); }
   .list{ margin-top:20px; }
   .item{ display:flex; justify-content:space-between; gap:10px; border-bottom:1px solid var(--line); padding:10px 0; font-size:12.5px; }
   .item button{ padding:5px 10px; font-size:11px; margin:0; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 </style>
 </head>
 <body>
   <h1>Portfolio Admin</h1>
-  <p class="sub">// add a LinkedIn post link or swap your profile photo. requires your admin key.</p>
+  <p class="sub">// manage LinkedIn posts, GitHub repos, and your profile photo. requires your admin key.</p>
 
   <label>Admin key</label>
   <input id="key" type="password" placeholder="X-Admin-Key">
 
   <fieldset>
-    <legend>NEW POST</legend>
+    <legend>NEW LINKEDIN POST</legend>
     <label>Title</label>
     <input id="p-title" placeholder="Shipped a new detection pipeline">
     <label>LinkedIn post URL</label>
@@ -48,6 +49,46 @@
   </fieldset>
 
   <fieldset>
+    <legend>CURRENT LINKEDIN POSTS</legend>
+    <div id="post-list" class="list"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>NEW GITHUB REPO</legend>
+    <label>Repo name</label>
+    <input id="r-name" placeholder="DepthVision">
+    <label>Repo URL</label>
+    <input id="r-url" placeholder="https://github.com/lakshaynehra2524/depthvision">
+    <label>Description (can be a few sentences — full detail is fine)</label>
+    <textarea id="r-description"></textarea>
+    <div class="row2">
+      <div>
+        <label>Status</label>
+        <select id="r-status">
+          <option value="active">Active</option>
+          <option value="paused">Paused</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+      <div>
+        <label>Progress % (used when status = Active)</label>
+        <input id="r-progress" type="number" min="0" max="100" value="50">
+      </div>
+    </div>
+    <label>Tags (comma separated)</label>
+    <input id="r-tags" placeholder="FastAPI, YOLOv8, OpenCV">
+    <label>Last updated (e.g. 2026-07)</label>
+    <input id="r-updated" placeholder="2026-07">
+    <button onclick="addRepo()">Add repo</button>
+    <div id="r-msg" class="msg"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>CURRENT GITHUB REPOS</legend>
+    <div id="repo-list" class="list"></div>
+  </fieldset>
+
+  <fieldset>
     <legend>PROFILE PHOTO</legend>
     <label>Upload your LinkedIn profile photo (jpg/png/webp)</label>
     <input id="photo" type="file" accept="image/*">
@@ -55,18 +96,15 @@
     <div id="photo-msg" class="msg"></div>
   </fieldset>
 
-  <fieldset>
-    <legend>CURRENT POSTS</legend>
-    <div id="list" class="list"></div>
-  </fieldset>
-
 <script>
-  const headers = () => ({ 'Content-Type': 'application/json', 'X-Admin-Key': document.getElementById('key').value });
+  const key = () => document.getElementById('key').value;
+  const jsonHeaders = () => ({ 'Content-Type': 'application/json', 'X-Admin-Key': key() });
 
+  // ---------- posts ----------
   async function loadPosts(){
     const res = await fetch('/api/posts');
     const posts = await res.json();
-    const list = document.getElementById('list');
+    const list = document.getElementById('post-list');
     list.innerHTML = posts.length ? '' : '<div class="item">No posts yet.</div>';
     posts.forEach((p, i) => {
       const row = document.createElement('div');
@@ -79,7 +117,6 @@
       list.appendChild(row);
     });
   }
-
   async function addPost(){
     const body = {
       title: document.getElementById('p-title').value,
@@ -87,29 +124,67 @@
       date: document.getElementById('p-date').value,
       snippet: document.getElementById('p-snippet').value
     };
-    const res = await fetch('/api/posts', { method:'POST', headers: headers(), body: JSON.stringify(body) });
+    const res = await fetch('/api/posts', { method:'POST', headers: jsonHeaders(), body: JSON.stringify(body) });
     const msg = document.getElementById('p-msg');
     if(res.ok){ msg.textContent = 'Added.'; msg.className='msg ok'; loadPosts(); }
     else{ msg.textContent = 'Failed — check your admin key.'; msg.className='msg err'; }
   }
-
   async function deletePost(i){
-    const res = await fetch('/api/posts/' + i, { method:'DELETE', headers: { 'X-Admin-Key': document.getElementById('key').value } });
+    const res = await fetch('/api/posts/' + i, { method:'DELETE', headers: { 'X-Admin-Key': key() } });
     if(res.ok) loadPosts();
   }
 
+  // ---------- repos ----------
+  async function loadRepos(){
+    const res = await fetch('/api/repos');
+    const repos = await res.json();
+    const list = document.getElementById('repo-list');
+    list.innerHTML = repos.length ? '' : '<div class="item">No repos yet.</div>';
+    repos.forEach((r, i) => {
+      const row = document.createElement('div');
+      row.className = 'item';
+      row.innerHTML = `<span>[${r.status}] ${r.name} — ${r.progress}%</span>`;
+      const btn = document.createElement('button');
+      btn.textContent = 'delete';
+      btn.onclick = () => deleteRepo(i);
+      row.appendChild(btn);
+      list.appendChild(row);
+    });
+  }
+  async function addRepo(){
+    const body = {
+      name: document.getElementById('r-name').value,
+      url: document.getElementById('r-url').value,
+      description: document.getElementById('r-description').value,
+      status: document.getElementById('r-status').value,
+      progress: parseInt(document.getElementById('r-progress').value || '0', 10),
+      tags: document.getElementById('r-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+      updated: document.getElementById('r-updated').value
+    };
+    const res = await fetch('/api/repos', { method:'POST', headers: jsonHeaders(), body: JSON.stringify(body) });
+    const msg = document.getElementById('r-msg');
+    if(res.ok){ msg.textContent = 'Added.'; msg.className='msg ok'; loadRepos(); }
+    else{ msg.textContent = 'Failed — check your admin key.'; msg.className='msg err'; }
+  }
+  async function deleteRepo(i){
+    const res = await fetch('/api/repos/' + i, { method:'DELETE', headers: { 'X-Admin-Key': key() } });
+    if(res.ok) loadRepos();
+  }
+
+  // ---------- photo ----------
   async function uploadPhoto(){
     const file = document.getElementById('photo').files[0];
     const msg = document.getElementById('photo-msg');
     if(!file){ msg.textContent = 'Choose a file first.'; msg.className='msg err'; return; }
     const fd = new FormData();
     fd.append('file', file);
-    const res = await fetch('/api/profile/photo', { method:'POST', headers: { 'X-Admin-Key': document.getElementById('key').value }, body: fd });
+    const res = await fetch('/api/profile/photo', { method:'POST', headers: { 'X-Admin-Key': key() }, body: fd });
     if(res.ok){ msg.textContent = 'Uploaded.'; msg.className='msg ok'; }
     else{ msg.textContent = 'Failed — check your admin key.'; msg.className='msg err'; }
   }
 
   loadPosts();
+  loadRepos();
 </script>
 </body>
 </html>
