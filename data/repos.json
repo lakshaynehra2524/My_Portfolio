@@ -49,39 +49,55 @@
     "name": "DepthVision",
     "url": "https://github.com/lakshaynehra2524/depthvision",
     "description": "FastAPI service combining monocular depth estimation with YOLOv8 object detection to compute real-world object distances and flag high-risk object pairs in a scene, with annotated visual output. Currently extending the risk-scoring model to handle occluded objects.",
-    "status": "active",
-    "progress": 75,
+    "status": "paused",
+    "progress": 85,
     "tags": [
+      "Python",
       "FastAPI",
-      "YOLOv8",
+      "PyTorch",
+      "YOLOv8 (Ultralytics)",
       "OpenCV",
-      "Depth Estimation"
+      "NumPy",
+      "Pandas",
+      "HTML5",
+      "CSS3",
+      "JavaScript",
+      "Custom Encoder-Decoder CNN",
+      "Monocular Depth Estimation",
+      "Object Detection",
+      "Distance Analytics"
     ],
-    "updated": "2026-07"
+    "updated": "2026-05"
   },
   {
     "name": "housing-price-prediction",
-    "url": "https://github.com/lakshaynehra2524/housing-price-prediction",
+    "url": "https://github.com/lakshaynehra2524/House-Price-Prediction-Chatbot-System",
     "description": "Regression pipeline comparing Ridge, Lasso, and ensemble models for housing price prediction, deployed with an RMSE-optimized Ridge model. Includes a TF-IDF based chatbot for automated Q&A over a custom real-estate corpus.",
     "status": "completed",
     "progress": 100,
     "tags": [
+      "Python",
+      "Streamlit",
       "Scikit-learn",
-      "Ridge Regression",
-      "TF-IDF"
+      "NLTK",
+      "NumPy",
+      "Joblib"
     ],
     "updated": "2025-12"
   },
   {
     "name": "ai-intent-calling-assistant",
-    "url": "https://github.com/lakshaynehra2524/ai-intent-calling-assistant",
+    "url": "https://github.com/lakshaynehra2524/AI-Indent_calling_model",
     "description": "Streamlit application for real-time intent recognition from user voice/text commands using TF-IDF features and a LinearSVC classifier. Paused while exploring a transformer-based intent classifier as a v2.",
     "status": "paused",
     "progress": 40,
     "tags": [
-      "NLP",
-      "LinearSVC",
-      "Streamlit"
+      "Python",
+      "Streamlit",
+      "Scikit-Learn",
+      "Joblib",
+      "TF-IDF Vectorizer",
+      "LinearSVC"
     ],
     "updated": "2026-04"
   }

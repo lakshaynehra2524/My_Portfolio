@@ -13,17 +13,24 @@
   p.sub{ color:var(--muted); font-size:13px; margin-bottom:36px; }
   fieldset{ border:1px solid var(--line); padding:22px; margin-bottom:28px; }
   legend{ font-size:12px; padding:0 8px; color:var(--detect); }
+  legend.editing{ color:var(--gold); }
   label{ display:block; font-size:11.5px; color:var(--muted); margin:14px 0 6px; }
   input, textarea, select{ width:100%; font-family:inherit; font-size:13.5px; padding:10px; border:1px solid var(--line); background:var(--paper-2); color:var(--ink); }
   textarea{ resize:vertical; min-height:70px; }
-  button{ margin-top:16px; font-family:inherit; font-size:13px; background:var(--ink); color:var(--paper); border:none; padding:11px 20px; cursor:pointer; }
+  .btn-row{ display:flex; gap:10px; margin-top:16px; }
+  button{ font-family:inherit; font-size:13px; background:var(--ink); color:var(--paper); border:none; padding:11px 20px; cursor:pointer; }
   button:hover{ background:var(--detect); color:var(--ink); }
+  button.secondary{ background:transparent; color:var(--muted); border:1px solid var(--line); }
+  button.secondary:hover{ background:var(--paper-2); color:var(--ink); }
   .msg{ font-size:12.5px; margin-top:12px; }
   .msg.ok{ color:var(--calm); }
   .msg.err{ color:var(--detect); }
   .list{ margin-top:20px; }
-  .item{ display:flex; justify-content:space-between; gap:10px; border-bottom:1px solid var(--line); padding:10px 0; font-size:12.5px; }
-  .item button{ padding:5px 10px; font-size:11px; margin:0; }
+  .item{ display:flex; justify-content:space-between; align-items:center; gap:10px; border-bottom:1px solid var(--line); padding:10px 0; font-size:12.5px; }
+  .item .item-btns{ display:flex; gap:6px; flex-shrink:0; }
+  .item button{ padding:5px 10px; font-size:11px; }
+  .item button.edit{ background:transparent; border:1px solid var(--gold); color:var(--gold); }
+  .item button.edit:hover{ background:var(--gold); color:var(--paper); }
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 </style>
 </head>
@@ -35,7 +42,7 @@
   <input id="key" type="password" placeholder="X-Admin-Key">
 
   <fieldset>
-    <legend>NEW LINKEDIN POST</legend>
+    <legend id="p-legend">NEW LINKEDIN POST</legend>
     <label>Title</label>
     <input id="p-title" placeholder="Shipped a new detection pipeline">
     <label>LinkedIn post URL</label>
@@ -44,7 +51,10 @@
     <input id="p-date" placeholder="2026-07">
     <label>Short snippet (what you wrote, 1–2 lines)</label>
     <textarea id="p-snippet"></textarea>
-    <button onclick="addPost()">Add post</button>
+    <div class="btn-row">
+      <button id="p-submit" onclick="savePost()">Add post</button>
+      <button id="p-cancel" class="secondary" onclick="cancelPostEdit()" style="display:none;">Cancel edit</button>
+    </div>
     <div id="p-msg" class="msg"></div>
   </fieldset>
 
@@ -54,7 +64,7 @@
   </fieldset>
 
   <fieldset>
-    <legend>NEW GITHUB REPO</legend>
+    <legend id="r-legend">NEW GITHUB REPO</legend>
     <label>Repo name</label>
     <input id="r-name" placeholder="DepthVision">
     <label>Repo URL</label>
@@ -79,7 +89,10 @@
     <input id="r-tags" placeholder="FastAPI, YOLOv8, OpenCV">
     <label>Last updated (e.g. 2026-07)</label>
     <input id="r-updated" placeholder="2026-07">
-    <button onclick="addRepo()">Add repo</button>
+    <div class="btn-row">
+      <button id="r-submit" onclick="saveRepo()">Add repo</button>
+      <button id="r-cancel" class="secondary" onclick="cancelRepoEdit()" style="display:none;">Cancel edit</button>
+    </div>
     <div id="r-msg" class="msg"></div>
   </fieldset>
 
@@ -100,36 +113,81 @@
   const key = () => document.getElementById('key').value;
   const jsonHeaders = () => ({ 'Content-Type': 'application/json', 'X-Admin-Key': key() });
 
+  let postsData = [];
+  let reposData = [];
+  let editingPostIndex = null;
+  let editingRepoIndex = null;
+
   // ---------- posts ----------
   async function loadPosts(){
     const res = await fetch('/api/posts');
-    const posts = await res.json();
+    postsData = await res.json();
     const list = document.getElementById('post-list');
-    list.innerHTML = posts.length ? '' : '<div class="item">No posts yet.</div>';
-    posts.forEach((p, i) => {
+    list.innerHTML = postsData.length ? '' : '<div class="item">No posts yet.</div>';
+    postsData.forEach((p, i) => {
       const row = document.createElement('div');
       row.className = 'item';
       row.innerHTML = `<span>${p.date} — ${p.title}</span>`;
-      const btn = document.createElement('button');
-      btn.textContent = 'delete';
-      btn.onclick = () => deletePost(i);
-      row.appendChild(btn);
+      const btns = document.createElement('div');
+      btns.className = 'item-btns';
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'edit'; editBtn.className = 'edit';
+      editBtn.onclick = () => editPost(i);
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'delete';
+      delBtn.onclick = () => deletePost(i);
+      btns.appendChild(editBtn); btns.appendChild(delBtn);
+      row.appendChild(btns);
       list.appendChild(row);
     });
   }
-  async function addPost(){
+
+  function editPost(i){
+    const p = postsData[i];
+    document.getElementById('p-title').value = p.title;
+    document.getElementById('p-url').value = p.url;
+    document.getElementById('p-date').value = p.date;
+    document.getElementById('p-snippet').value = p.snippet || '';
+    editingPostIndex = i;
+    document.getElementById('p-legend').textContent = `EDITING POST — ${p.title}`;
+    document.getElementById('p-legend').classList.add('editing');
+    document.getElementById('p-submit').textContent = 'Update post';
+    document.getElementById('p-cancel').style.display = 'inline-block';
+    document.getElementById('p-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function cancelPostEdit(){
+    editingPostIndex = null;
+    ['p-title','p-url','p-date','p-snippet'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('p-legend').textContent = 'NEW LINKEDIN POST';
+    document.getElementById('p-legend').classList.remove('editing');
+    document.getElementById('p-submit').textContent = 'Add post';
+    document.getElementById('p-cancel').style.display = 'none';
+  }
+
+  async function savePost(){
     const body = {
       title: document.getElementById('p-title').value,
       url: document.getElementById('p-url').value,
       date: document.getElementById('p-date').value,
       snippet: document.getElementById('p-snippet').value
     };
-    const res = await fetch('/api/posts', { method:'POST', headers: jsonHeaders(), body: JSON.stringify(body) });
     const msg = document.getElementById('p-msg');
-    if(res.ok){ msg.textContent = 'Added.'; msg.className='msg ok'; loadPosts(); }
-    else{ msg.textContent = 'Failed — check your admin key.'; msg.className='msg err'; }
+    const isEdit = editingPostIndex !== null;
+    const url = isEdit ? '/api/posts/' + editingPostIndex : '/api/posts';
+    const method = isEdit ? 'PUT' : 'POST';
+    const res = await fetch(url, { method, headers: jsonHeaders(), body: JSON.stringify(body) });
+    if(res.ok){
+      msg.textContent = isEdit ? 'Updated.' : 'Added.'; msg.className = 'msg ok';
+      if(isEdit) cancelPostEdit();
+      loadPosts();
+    } else {
+      msg.textContent = 'Failed — check your admin key.'; msg.className = 'msg err';
+    }
   }
+
   async function deletePost(i){
+    if(editingPostIndex === i) cancelPostEdit();
     const res = await fetch('/api/posts/' + i, { method:'DELETE', headers: { 'X-Admin-Key': key() } });
     if(res.ok) loadPosts();
   }
@@ -137,21 +195,56 @@
   // ---------- repos ----------
   async function loadRepos(){
     const res = await fetch('/api/repos');
-    const repos = await res.json();
+    reposData = await res.json();
     const list = document.getElementById('repo-list');
-    list.innerHTML = repos.length ? '' : '<div class="item">No repos yet.</div>';
-    repos.forEach((r, i) => {
+    list.innerHTML = reposData.length ? '' : '<div class="item">No repos yet.</div>';
+    reposData.forEach((r, i) => {
       const row = document.createElement('div');
       row.className = 'item';
       row.innerHTML = `<span>[${r.status}] ${r.name} — ${r.progress}%</span>`;
-      const btn = document.createElement('button');
-      btn.textContent = 'delete';
-      btn.onclick = () => deleteRepo(i);
-      row.appendChild(btn);
+      const btns = document.createElement('div');
+      btns.className = 'item-btns';
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'edit'; editBtn.className = 'edit';
+      editBtn.onclick = () => editRepo(i);
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'delete';
+      delBtn.onclick = () => deleteRepo(i);
+      btns.appendChild(editBtn); btns.appendChild(delBtn);
+      row.appendChild(btns);
       list.appendChild(row);
     });
   }
-  async function addRepo(){
+
+  function editRepo(i){
+    const r = reposData[i];
+    document.getElementById('r-name').value = r.name;
+    document.getElementById('r-url').value = r.url;
+    document.getElementById('r-description').value = r.description || '';
+    document.getElementById('r-status').value = r.status || 'active';
+    document.getElementById('r-progress').value = r.progress || 0;
+    document.getElementById('r-tags').value = (r.tags || []).join(', ');
+    document.getElementById('r-updated').value = r.updated || '';
+    editingRepoIndex = i;
+    document.getElementById('r-legend').textContent = `EDITING REPO — ${r.name}`;
+    document.getElementById('r-legend').classList.add('editing');
+    document.getElementById('r-submit').textContent = 'Update repo';
+    document.getElementById('r-cancel').style.display = 'inline-block';
+    document.getElementById('r-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function cancelRepoEdit(){
+    editingRepoIndex = null;
+    ['r-name','r-url','r-description','r-tags','r-updated'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('r-status').value = 'active';
+    document.getElementById('r-progress').value = 50;
+    document.getElementById('r-legend').textContent = 'NEW GITHUB REPO';
+    document.getElementById('r-legend').classList.remove('editing');
+    document.getElementById('r-submit').textContent = 'Add repo';
+    document.getElementById('r-cancel').style.display = 'none';
+  }
+
+  async function saveRepo(){
     const body = {
       name: document.getElementById('r-name').value,
       url: document.getElementById('r-url').value,
@@ -161,12 +254,22 @@
       tags: document.getElementById('r-tags').value.split(',').map(t => t.trim()).filter(Boolean),
       updated: document.getElementById('r-updated').value
     };
-    const res = await fetch('/api/repos', { method:'POST', headers: jsonHeaders(), body: JSON.stringify(body) });
     const msg = document.getElementById('r-msg');
-    if(res.ok){ msg.textContent = 'Added.'; msg.className='msg ok'; loadRepos(); }
-    else{ msg.textContent = 'Failed — check your admin key.'; msg.className='msg err'; }
+    const isEdit = editingRepoIndex !== null;
+    const url = isEdit ? '/api/repos/' + editingRepoIndex : '/api/repos';
+    const method = isEdit ? 'PUT' : 'POST';
+    const res = await fetch(url, { method, headers: jsonHeaders(), body: JSON.stringify(body) });
+    if(res.ok){
+      msg.textContent = isEdit ? 'Updated.' : 'Added.'; msg.className = 'msg ok';
+      if(isEdit) cancelRepoEdit();
+      loadRepos();
+    } else {
+      msg.textContent = 'Failed — check your admin key.'; msg.className = 'msg err';
+    }
   }
+
   async function deleteRepo(i){
+    if(editingRepoIndex === i) cancelRepoEdit();
     const res = await fetch('/api/repos/' + i, { method:'DELETE', headers: { 'X-Admin-Key': key() } });
     if(res.ok) loadRepos();
   }

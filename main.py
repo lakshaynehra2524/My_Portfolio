@@ -30,7 +30,6 @@ REPOS_FILE = DATA_DIR / "repos.json"
 DATA_DIR.mkdir(exist_ok=True)
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
-# # Set a real secret before deploying: `export PORTFOLIO_ADMIN_KEY="something-long"`
 # My secret admit key 
 from admin_key.admin_key import ADMIN_KEY
 
@@ -92,6 +91,17 @@ def add_post(post: Post, x_admin_key: Optional[str] = Header(None)):
     posts.insert(0, post.dict())
     _save_json(POSTS_FILE, posts)
     return {"status": "ok", "count": len(posts)}
+
+
+@app.put("/api/posts/{index}")
+def update_post(index: int, post: Post, x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    posts = _load_json(POSTS_FILE, [])
+    if index < 0 or index >= len(posts):
+        raise HTTPException(status_code=404, detail="Post not found")
+    posts[index] = post.dict()
+    _save_json(POSTS_FILE, posts)
+    return {"status": "ok", "updated": posts[index]}
 
 
 @app.delete("/api/posts/{index}")
