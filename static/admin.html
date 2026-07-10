@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#F6F5F1; --ink:#14171A; --line:#D9D6CC; --detect:#FF5A36; --calm:#2F6F5E; }
+  *{box-sizing:border-box;}
+  body{ background:var(--paper); color:var(--ink); font-family:'JetBrains Mono', monospace; max-width:620px; margin:60px auto; padding:0 20px; }
+  h1{ font-family:'Space Grotesk', sans-serif; font-size:28px; margin-bottom:6px; }
+  p.sub{ color:#6b6b63; font-size:13px; margin-bottom:36px; }
+  fieldset{ border:1px solid var(--line); padding:22px; margin-bottom:28px; }
+  legend{ font-size:12px; padding:0 8px; color:var(--detect); }
+  label{ display:block; font-size:11.5px; color:#6b6b63; margin:14px 0 6px; }
+  input, textarea{ width:100%; font-family:inherit; font-size:13.5px; padding:10px; border:1px solid var(--line); background:#fff; color:var(--ink); }
+  textarea{ resize:vertical; min-height:60px; }
+  button{ margin-top:16px; font-family:inherit; font-size:13px; background:var(--ink); color:var(--paper); border:none; padding:11px 20px; cursor:pointer; }
+  button:hover{ background:var(--detect); }
+  .msg{ font-size:12.5px; margin-top:12px; }
+  .msg.ok{ color:var(--calm); }
+  .msg.err{ color:var(--detect); }
+  .list{ margin-top:20px; }
+  .item{ display:flex; justify-content:space-between; gap:10px; border-bottom:1px solid var(--line); padding:10px 0; font-size:12.5px; }
+  .item button{ padding:5px 10px; font-size:11px; margin:0; }
+</style>
+</head>
+<body>
+  <h1>Portfolio Admin</h1>
+  <p class="sub">// add a LinkedIn post link or swap your profile photo. requires your admin key.</p>
+
+  <label>Admin key</label>
+  <input id="key" type="password" placeholder="X-Admin-Key">
+
+  <fieldset>
+    <legend>NEW POST</legend>
+    <label>Title</label>
+    <input id="p-title" placeholder="Shipped a new detection pipeline">
+    <label>LinkedIn post URL</label>
+    <input id="p-url" placeholder="https://www.linkedin.com/posts/...">
+    <label>Date (e.g. 2026-07)</label>
+    <input id="p-date" placeholder="2026-07">
+    <label>Short snippet (what you wrote, 1–2 lines)</label>
+    <textarea id="p-snippet"></textarea>
+    <button onclick="addPost()">Add post</button>
+    <div id="p-msg" class="msg"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>PROFILE PHOTO</legend>
+    <label>Upload your LinkedIn profile photo (jpg/png/webp)</label>
+    <input id="photo" type="file" accept="image/*">
+    <button onclick="uploadPhoto()">Upload photo</button>
+    <div id="photo-msg" class="msg"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>CURRENT POSTS</legend>
+    <div id="list" class="list"></div>
+  </fieldset>
+
+<script>
+  const headers = () => ({ 'Content-Type': 'application/json', 'X-Admin-Key': document.getElementById('key').value });
+
+  async function loadPosts(){
+    const res = await fetch('/api/posts');
+    const posts = await res.json();
+    const list = document.getElementById('list');
+    list.innerHTML = posts.length ? '' : '<div class="item">No posts yet.</div>';
+    posts.forEach((p, i) => {
+      const row = document.createElement('div');
+      row.className = 'item';
+      row.innerHTML = `<span>${p.date} — ${p.title}</span>`;
+      const btn = document.createElement('button');
+      btn.textContent = 'delete';
+      btn.onclick = () => deletePost(i);
+      row.appendChild(btn);
+      list.appendChild(row);
+    });
+  }
+
+  async function addPost(){
+    const body = {
+      title: document.getElementById('p-title').value,
+      url: document.getElementById('p-url').value,
+      date: document.getElementById('p-date').value,
+      snippet: document.getElementById('p-snippet').value
+    };
+    const res = await fetch('/api/posts', { method:'POST', headers: headers(), body: JSON.stringify(body) });
+    const msg = document.getElementById('p-msg');
+    if(res.ok){ msg.textContent = 'Added.'; msg.className='msg ok'; loadPosts(); }
+    else{ msg.textContent = 'Failed — check your admin key.'; msg.className='msg err'; }
+  }
+
+  async function deletePost(i){
+    const res = await fetch('/api/posts/' + i, { method:'DELETE', headers: { 'X-Admin-Key': document.getElementById('key').value } });
+    if(res.ok) loadPosts();
+  }
+
+  async function uploadPhoto(){
+    const file = document.getElementById('photo').files[0];
+    const msg = document.getElementById('photo-msg');
+    if(!file){ msg.textContent = 'Choose a file first.'; msg.className='msg err'; return; }
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/api/profile/photo', { method:'POST', headers: { 'X-Admin-Key': document.getElementById('key').value }, body: fd });
+    if(res.ok){ msg.textContent = 'Uploaded.'; msg.className='msg ok'; }
+    else{ msg.textContent = 'Failed — check your admin key.'; msg.className='msg err'; }
+  }
+
+  loadPosts();
+</script>
+</body>
+</html>
