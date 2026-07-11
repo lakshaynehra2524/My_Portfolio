@@ -38,9 +38,9 @@ portfoliovenv/
 # ---------- This project's runtime data ----------
 # your real posts/profile + uploaded photo shouldn't be committed —
 # keep the repo holding only placeholder/seed data.
-data/profile.json
 static/uploads/*
 !static/uploads/.gitkeep
+!static/uploads/profile.*
 
 # ---------- Logs ----------
 *.log
