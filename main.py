@@ -30,8 +30,11 @@ REPOS_FILE = DATA_DIR / "repos.json"
 DATA_DIR.mkdir(exist_ok=True)
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
-# My secret admit key 
-from admin_key.admin_key import ADMIN_KEY
+# The admin key lives ONLY as an environment variable — set it on your
+# hosting platform's dashboard (e.g. Render → Environment), never in a file
+# that gets committed to git. "changeme" is just a harmless local default;
+# always override it in production.
+ADMIN_KEY = os.environ.get("PORTFOLIO_ADMIN_KEY", "changeme")
 
 app = FastAPI(title="Lakshay Portfolio API")
 
