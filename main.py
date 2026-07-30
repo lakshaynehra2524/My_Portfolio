@@ -1,4 +1,11 @@
+"""
+Lakshay Portfolio — FastAPI backend.
 
+Serves the static portfolio site and two tiny data endpoints:
+  - /api/posts    a small JSON store of LinkedIn post links you add yourself
+  - /api/profile  your profile photo, uploaded once via /admin
+
+"""
 
 import json
 import os
