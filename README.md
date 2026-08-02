@@ -1,13 +1,3 @@
-# Lakshay — Portfolio
-
-A personal portfolio site built as a FastAPI app: a single-page site styled
-around a computer-vision "detection/annotation" visual language (bounding-box
-brackets, confidence-score tags, status badges), backed by a couple of tiny
-API endpoints so LinkedIn posts and GitHub repos can be added or edited
-without touching code.
-
-**Live sections:** Hero · About · Skills · Experience · LinkedIn · GitHub ·
-Projects · Education · Contact
 
 ---
 
