@@ -179,16 +179,3 @@ async def upload_photo(file: UploadFile = File(...), x_admin_key: Optional[str] 
     return {"status": "ok", "photo_url": photo_url}
 
 
-# ---------- static site ----------
-
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
-
-@app.get("/")
-def root():
-    return FileResponse(STATIC_DIR / "index.html")
-
-
-@app.get("/admin")
-def admin():
-    return FileResponse(STATIC_DIR / "admin.html")
