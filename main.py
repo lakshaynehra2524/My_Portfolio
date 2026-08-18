@@ -158,25 +158,7 @@ def delete_repo(index: int, x_admin_key: Optional[str] = Header(None)):
 
 # ---------- profile photo ----------
 
-@app.get("/api/profile")
-def get_profile():
-    return _load_json(PROFILE_FILE, {"photo_url": None})
 
-
-@app.post("/api/profile/photo")
-async def upload_photo(file: UploadFile = File(...), x_admin_key: Optional[str] = Header(None)):
-    check_admin(x_admin_key)
-    ext = Path(file.filename).suffix.lower() or ".jpg"
-    if ext not in {".jpg", ".jpeg", ".png", ".webp"}:
-        raise HTTPException(status_code=400, detail="Use a jpg, png, or webp file")
-    dest = UPLOADS_DIR / f"profile{ext}"
-    with open(dest, "wb") as f:
-        shutil.copyfileobj(file.file, f)
-    photo_url = f"/static/uploads/{dest.name}"
-    profile = _load_json(PROFILE_FILE, {})
-    profile["photo_url"] = photo_url
-    _save_json(PROFILE_FILE, profile)
-    return {"status": "ok", "photo_url": photo_url}
 
 
 # ---------- static site ----------
