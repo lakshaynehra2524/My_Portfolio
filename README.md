@@ -118,7 +118,3 @@ either. This project's `/admin` page is the practical alternative: adding
 or editing a post takes about ten seconds, and it renders properly styled
 instead of an embedded iframe.
 
-## Tech
-
-FastAPI · Uvicorn · vanilla HTML/CSS/JS (no frontend framework, no build
-step) · Canvas 2D for the background animation.
